@@ -28,31 +28,21 @@ const QuizPage=()=>{
         setCurrentAnswer('')
     }
 
-    useEffect(() => {
-        const fetchQuiz = async () => {
+    useEffect(()=>{
+        const fetchQuiz=async()=>{
             try {
-                const storedQuizs = JSON.parse(localStorage.getItem("quizData"));
-                if (storedQuizs && storedQuizs.length > 0) {
-                    setQuizs(storedQuizs);
-                    setLoading(false);
-                } else {
-                    const response = await axios.get(`https://quizapi.io/api/v1/questions?apiKey=QTKG3YmBxQM2QEB4xm1T0nK0DPbOw8qStVuB3Azj&category=${selectedQuiz}&limit=20&difficulty=${difficulty}`);
-                    const data = response.data;
-                    setQuizs(data);
-                    setLoading(false);
-                    localStorage.setItem("quizData", JSON.stringify(data));
+                if(quizs.length===0){
+                    const response=await axios.get(`https://quizapi.io/api/v1/questions?apiKey=QTKG3YmBxQM2QEB4xm1T0nK0DPbOw8qStVuB3Azj&category=${selectedQuiz}&limit=20&difficulty=${difficulty}`)
+                    const data=response.data
+                    setQuizs(data)
+                    setLoading(false)
                 }
             } catch (error) {
-                console.log("Error getting the quiz data", error);
+                console.log("Error getting the quiz data",error)
             }
-        };
-    
-        // Fetch quiz data only if it's not in local storage or if it needs to be updated
-        if (!quizs || quizs.length === 0) {
-            fetchQuiz();
         }
-    }, [quizs, selectedQuiz, difficulty]);
-    
+        fetchQuiz()
+    },[])
 
 
     if(loading){
