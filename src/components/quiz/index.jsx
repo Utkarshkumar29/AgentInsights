@@ -7,47 +7,68 @@ import Confetti from 'react-confetti'
 import { Link } from "react-router-dom";
 
 const QuizPage=()=>{
-    const [quizs,setQuizs]=useState([])
-    const [page,setPage]=useState(0)
-    const [score,setScore]=useState(0)
-    const [currentAnswer,setCurrentAnswer]=useState('')
-    const {selectedQuiz,difficulty}=useContext(SelectQuizContext)
-    const [loading,setLoading]=useState(true)
-    console.log(page)
-    
+    const [quizs, setQuizs] = useState([]);
+    const [page, setPage] = useState(0);
+    const [score, setScore] = useState(0);
+    const [currentAnswer, setCurrentAnswer] = useState('');
+    const { selectedQuiz, difficulty } = useContext(SelectQuizContext);
+    const [loading, setLoading] = useState(true);
 
-    const handleSubmit=()=>{
-        const checkanswer= `${currentAnswer}_correct`
-        if(quizs[page].correct_answers[checkanswer]==="true"){
-            console.log("Correct")
-            setScore(score+1)
-            console.log(score)
+    const saveStateToLocalStorage = () => {
+        localStorage.setItem('quizPage', JSON.stringify(page));
+        localStorage.setItem('quizScore', JSON.stringify(score));
+    };
+
+    const loadStateFromLocalStorage = () => {
+        const savedPage = JSON.parse(localStorage.getItem('quizPage'));
+        const savedScore = JSON.parse(localStorage.getItem('quizScore'));
+
+        if (savedPage !== null) {
+            setPage(savedPage);
         }
-        setPage(page + 1)
-        setCurrentAnswer('')
-    }
 
-    useEffect(()=>{
-        const fetchQuiz=async()=>{
+        if (savedScore !== null) {
+            setScore(savedScore);
+        }
+    };
+
+    const handleSubmit = () => {
+        const checkanswer = `${currentAnswer}_correct`;
+        if (quizs[page].correct_answers[checkanswer] === "true") {
+            console.log("Correct");
+            setScore(score + 1);
+            console.log(score);
+        }
+        setPage(page + 1);
+        setCurrentAnswer('');
+    };
+
+    useEffect(() => {
+        const fetchQuiz = async () => {
             try {
-                if(quizs.length===0){
-                    const response=await axios.get(`https://quizapi.io/api/v1/questions?apiKey=QTKG3YmBxQM2QEB4xm1T0nK0DPbOw8qStVuB3Azj&category=${selectedQuiz}&limit=20&difficulty=${difficulty}`)
-                    const data=response.data
-                    setQuizs(data)
-                    setLoading(false)
+                if (quizs.length === 0) {
+                    const response = await axios.get(`https://quizapi.io/api/v1/questions?apiKey=QTKG3YmBxQM2QEB4xm1T0nK0DPbOw8qStVuB3Azj&category=${selectedQuiz}&limit=20&difficulty=${difficulty}`)
+                    const data = response.data;
+                    setQuizs(data);
+                    setLoading(false);
                 }
             } catch (error) {
-                console.log("Error getting the quiz data",error)
+                console.log("Error getting the quiz data", error);
             }
-        }
-        fetchQuiz()
-    },[])
+        };
 
+        fetchQuiz();
+        loadStateFromLocalStorage(); // Load state from localStorage on component mount
 
-    if(loading){
-        return(
-            <Loader/>
-        )
+        return () => {
+            saveStateToLocalStorage(); // Save state to localStorage on component unmount
+        };
+    }, []);
+
+    if (loading) {
+        return (
+            <Loader />
+        );
     }
 
     return(
