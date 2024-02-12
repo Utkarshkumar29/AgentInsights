@@ -11,7 +11,7 @@ const QuizPage=()=>{
     const {selectedQuiz}=useContext(SelectQuizContext)
 
     const fetchQuiz=async()=>{
-        try{
+        try {
             const response=await axios.get(`https://quizapi.io/api/v1/questions?apiKey=QTKG3YmBxQM2QEB4xm1T0nK0DPbOw8qStVuB3Azj&category=${selectedQuiz}&difficulty=Easy&limit=20`)
             const data=response.data
             console.log(data)
@@ -42,7 +42,7 @@ const QuizPage=()=>{
             <div className="container">
                 <div>
                     <p>Tolal Question:- 20</p>
-                    <p>Completed Questions {page}/20</p>
+                    <p>Completed Questions {page+1}/20</p>
                 </div>
                 {quizs.length > 0 && page < quizs.length && (
                     <div className="card">
