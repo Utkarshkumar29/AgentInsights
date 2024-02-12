@@ -2,24 +2,19 @@ import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import { SelectQuizContext } from "../../context/selectQuizContext";
 import { Fall } from "../../styles/quiz";
+import Loader from "../loader";
+import Confetti from 'react-confetti'
+import { Link } from "react-router-dom";
 
 const QuizPage=()=>{
     const [quizs,setQuizs]=useState([])
     const [page,setPage]=useState(0)
     const [score,setScore]=useState(0)
     const [currentAnswer,setCurrentAnswer]=useState('')
-    const {selectedQuiz}=useContext(SelectQuizContext)
-
-    const fetchQuiz=async()=>{
-        try {
-            const response=await axios.get(`https://quizapi.io/api/v1/questions?apiKey=QTKG3YmBxQM2QEB4xm1T0nK0DPbOw8qStVuB3Azj&category=${selectedQuiz}&difficulty=Easy&limit=20`)
-            const data=response.data
-            console.log(data)
-            setQuizs(data)
-        } catch (error) {
-            console.log("Error getting the quiz data",error)
-        }
-    }
+    const {selectedQuiz,difficulty}=useContext(SelectQuizContext)
+    const [loading,setLoading]=useState(true)
+    console.log(page)
+    
 
     const handleSubmit=()=>{
         console.log(currentAnswer)
@@ -33,16 +28,45 @@ const QuizPage=()=>{
         setCurrentAnswer('')
     }
 
-    useEffect(()=>{
-        fetchQuiz()
-    },[])
+    useEffect(() => {
+        const fetchQuiz = async () => {
+            try {
+                const storedQuizs = JSON.parse(localStorage.getItem("quizData"));
+                if (storedQuizs && storedQuizs.length > 0) {
+                    setQuizs(storedQuizs);
+                    setLoading(false);
+                } else {
+                    const response = await axios.get(`https://quizapi.io/api/v1/questions?apiKey=QTKG3YmBxQM2QEB4xm1T0nK0DPbOw8qStVuB3Azj&category=${selectedQuiz}&limit=20&difficulty=${difficulty}`);
+                    const data = response.data;
+                    setQuizs(data);
+                    setLoading(false);
+                    localStorage.setItem("quizData", JSON.stringify(data));
+                }
+            } catch (error) {
+                console.log("Error getting the quiz data", error);
+            }
+        };
+    
+        // Fetch quiz data only if it's not in local storage or if it needs to be updated
+        if (!quizs || quizs.length === 0) {
+            fetchQuiz();
+        }
+    }, [quizs, selectedQuiz, difficulty]);
+    
+
+
+    if(loading){
+        return(
+            <Loader/>
+        )
+    }
 
     return(
         <div className="container vh-100 d-flex justify-content-center align-items-center">
             <div className="container">
                 <div>
-                    <p>Tolal Question:- 20</p>
-                    <p>Completed Questions {page}/20</p>
+                    <p>Tolal Question: {quizs.length}</p>
+                    <p>Completed Questions {page}/{quizs.length}</p>
                 </div>
                 {quizs.length > 0 && page < quizs.length && (
                     <div className="card">
@@ -76,13 +100,21 @@ const QuizPage=()=>{
                         </div>
                     </div>
                 )}
-                {page === quizs.length && (
+                {page===quizs.length && (
+                    <div>
+                    <div>
+                        <Confetti width={window.innerWidth} height={window.innerHeight} numberOfPieces={100}/>
+                    </div>
                     <Fall className="card mt-3" >
                         <div className="card-body text-center">
                         <h5 className="card-title">Quiz Completed!</h5>
                         <p className="card-text">Your Score: {score}/{quizs.length}</p>
                         </div>
                     </Fall>
+                    <div className="container d-flex justify-content-center">
+                        <Link to='/'><button className="btn btn-primary mt-3">Take Another Test</button></Link>
+                    </div>
+                    </div>
                 )}
             </div>
         </div>

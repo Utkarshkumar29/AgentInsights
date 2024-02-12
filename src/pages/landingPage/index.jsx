@@ -12,12 +12,23 @@ import { SelectQuizContext } from "../../context/selectQuizContext";
 import { HoveredImage } from "../../styles/landingPage";
 
 const LandingPage=()=>{
-    const {setSelectedQuiz}=useContext(SelectQuizContext)
+    const {setSelectedQuiz,setDifficulty}=useContext(SelectQuizContext)
 
     return(
-        <div className="container mt-5">
+        <div className="container mt-4">
             <h1 className="mb-4">Welcome to Quiz!</h1>
             <p>Get ready to test your knowledge. Click the button below to start the quiz!</p>
+            <div className="alert alert-warning" role="alert">
+                Note: Once you proceed to the next question, your response will be saved, and you won't be able to revisit or modify your answer for this question.
+            </div>
+            <div className="container p-1">
+                <label className="form-label">Select Quiz Theme:</label>
+                <select className="form-select" onChange={(e)=>setDifficulty(e.target.value)}>
+                    <option value='Easy'>Easy</option>
+                    <option value='Medium'>Medium</option>
+                    <option value='Hard'>Hard</option>
+                </select>
+            </div>
             <div className="row row-cols-1 row-cols-md-4 g-4">
                 <div className="col">
                     <Link to="/quiz" className="card text-decoration-none">
