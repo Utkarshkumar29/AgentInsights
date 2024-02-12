@@ -17,7 +17,6 @@ const QuizPage=()=>{
     
 
     const handleSubmit=()=>{
-        console.log(currentAnswer)
         const checkanswer= `${currentAnswer}_correct`
         if(quizs[page].correct_answers[checkanswer]==="true"){
             console.log("Correct")
